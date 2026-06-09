@@ -6,7 +6,9 @@ import {
   LayoutDashboard,
   Package,
   Tags,
-  ArrowRightLeft,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ClipboardList,
   ShoppingCart,
   Users,
   AlertTriangle,
@@ -14,21 +16,117 @@ import {
   LogOut,
   Store,
   Menu,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const navItems = [
+type NavItem = {
+  href?: string;
+  label: string;
+  icon: React.ElementType;
+  children?: { href: string; label: string; icon: React.ElementType }[];
+};
+
+const navItems: NavItem[] = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: Tags },
-  { href: "/admin/stock", label: "Stock Movements", icon: ArrowRightLeft },
+  {
+    label: "Inventory",
+    icon: ClipboardList,
+    children: [
+      { href: "/admin/stock/in", label: "Stock In", icon: ArrowDownToLine },
+      { href: "/admin/stock/out", label: "Stock Out", icon: ArrowUpFromLine },
+      { href: "/admin/stock", label: "Movements Log", icon: ClipboardList },
+    ],
+  },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/alerts", label: "Alerts", icon: AlertTriangle },
   { href: "/admin/reports", label: "Reports", icon: BarChart3 },
 ];
+
+function NavLinks({
+  onNavigate,
+  location,
+}: {
+  onNavigate?: () => void;
+  location: string;
+}) {
+  const [inventoryOpen, setInventoryOpen] = useState(
+    location.startsWith("/admin/stock")
+  );
+
+  return (
+    <>
+      {navItems.map((item) => {
+        if (item.children) {
+          const isActive = item.children.some(
+            (c) => location === c.href || location.startsWith(c.href + "/")
+          );
+          return (
+            <div key={item.label}>
+              <button
+                className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md transition-colors text-left ${
+                  isActive
+                    ? "bg-sidebar-primary/20 text-sidebar-primary-foreground font-medium"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                }`}
+                onClick={() => setInventoryOpen((o) => !o)}
+              >
+                <span className="flex items-center gap-3">
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  <span>{item.label}</span>
+                </span>
+                {inventoryOpen
+                  ? <ChevronDown className="h-4 w-4 shrink-0" />
+                  : <ChevronRight className="h-4 w-4 shrink-0" />}
+              </button>
+              {inventoryOpen && (
+                <div className="ml-5 mt-1 flex flex-col gap-1 border-l border-sidebar-border pl-3">
+                  {item.children.map((child) => (
+                    <Link key={child.href} href={child.href}>
+                      <div
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                          location === child.href
+                            ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        }`}
+                        onClick={onNavigate}
+                      >
+                        <child.icon className="h-4 w-4 shrink-0" />
+                        <span>{child.label}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        return (
+          <Link key={item.href} href={item.href!}>
+            <div
+              className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer ${
+                location === item.href || location.startsWith(item.href! + "/")
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              }`}
+              onClick={onNavigate}
+            >
+              <item.icon className="h-5 w-5 shrink-0" />
+              <span>{item.label}</span>
+            </div>
+          </Link>
+        );
+      })}
+    </>
+  );
+}
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
@@ -45,40 +143,26 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const NavLinks = () => (
-    <>
-      {navItems.map((item) => (
-        <Link key={item.href} href={item.href}>
-          <div
-            className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer ${
-              location === item.href || location.startsWith(item.href + "/")
-                ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
-                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            }`}
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.label}</span>
-          </div>
-        </Link>
-      ))}
-    </>
-  );
+  const currentLabel =
+    navItems
+      .flatMap((item) => (item.children ? item.children : [item]))
+      .find((item) => location === item.href || location.startsWith((item.href || "") + "/"))
+      ?.label || "Admin Panel";
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-sidebar border-r border-sidebar-border shrink-0 fixed inset-y-0 z-10">
-        <div className="h-16 flex items-center px-6 border-b border-sidebar-border">
+        <div className="h-16 flex items-center px-6 border-b border-sidebar-border shrink-0">
           <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-lg text-sidebar-foreground">
             <Store className="h-6 w-6 text-sidebar-primary" />
             <span>Mahadev Kirana</span>
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
-          <NavLinks />
+          <NavLinks location={location} />
         </div>
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border shrink-0">
           <Button
             variant="ghost"
             className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -94,10 +178,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col md:ml-64 min-w-0">
         {/* Top Navbar */}
         <header className="h-16 bg-white border-b border-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10 shrink-0">
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden mr-2">
+                <Button variant="ghost" size="icon" className="md:hidden">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -109,21 +193,19 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   </div>
                 </div>
                 <div className="py-4 px-3 flex flex-col gap-1">
-                  <NavLinks />
+                  <NavLinks location={location} onNavigate={() => setIsMobileMenuOpen(false)} />
                 </div>
               </SheetContent>
             </Sheet>
-            <h1 className="text-xl font-semibold text-foreground truncate">
-              {navItems.find((item) => location === item.href || location.startsWith(item.href + "/"))?.label || "Admin Panel"}
-            </h1>
+            <h1 className="text-xl font-semibold text-foreground truncate">{currentLabel}</h1>
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium leading-none">{user?.username}</p>
-              <p className="text-xs text-muted-foreground">{user?.role}</p>
+              <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
             </div>
             <Avatar>
-              <AvatarFallback className="bg-primary/10 text-primary">
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                 {user?.username?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
