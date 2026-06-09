@@ -8,23 +8,14 @@ servers:
     description: Base API path
 tags:
   - name: health
-    description: Health operations
   - name: products
-    description: Product management
   - name: categories
-    description: Category management
   - name: stock
-    description: Stock movements
   - name: orders
-    description: Order management
   - name: customers
-    description: Customer management
   - name: dashboard
-    description: Dashboard analytics
   - name: alerts
-    description: Stock alerts
   - name: auth
-    description: Authentication
 
 paths:
   /healthz:
@@ -44,7 +35,6 @@ paths:
     post:
       operationId: login
       tags: [auth]
-      summary: Admin login
       requestBody:
         required: true
         content:
@@ -65,7 +55,6 @@ paths:
     post:
       operationId: logout
       tags: [auth]
-      summary: Logout
       responses:
         "200":
           description: Logged out
@@ -74,7 +63,6 @@ paths:
     get:
       operationId: getMe
       tags: [auth]
-      summary: Get current user
       responses:
         "200":
           description: Current user
@@ -87,7 +75,6 @@ paths:
     get:
       operationId: getDashboardStats
       tags: [dashboard]
-      summary: Get dashboard statistics
       responses:
         "200":
           description: Dashboard stats
@@ -100,7 +87,6 @@ paths:
     get:
       operationId: getCategoryDistribution
       tags: [dashboard]
-      summary: Get stock distribution by category
       responses:
         "200":
           description: Category distribution
@@ -115,10 +101,9 @@ paths:
     get:
       operationId: getMonthlyTrend
       tags: [dashboard]
-      summary: Get monthly restocking trend
       responses:
         "200":
-          description: Monthly trend data
+          description: Monthly trend
           content:
             application/json:
               schema:
@@ -130,7 +115,6 @@ paths:
     get:
       operationId: getTopCategories
       tags: [dashboard]
-      summary: Get top categories by stock value
       responses:
         "200":
           description: Top categories
@@ -145,7 +129,6 @@ paths:
     get:
       operationId: listProducts
       tags: [products]
-      summary: List all products
       parameters:
         - name: category
           in: query
@@ -167,6 +150,10 @@ paths:
           in: query
           schema:
             type: integer
+        - name: expiryWarning
+          in: query
+          schema:
+            type: boolean
       responses:
         "200":
           description: List of products
@@ -178,7 +165,6 @@ paths:
     post:
       operationId: createProduct
       tags: [products]
-      summary: Create a product
       requestBody:
         required: true
         content:
@@ -197,7 +183,6 @@ paths:
     get:
       operationId: getProduct
       tags: [products]
-      summary: Get a product by ID
       parameters:
         - name: id
           in: path
@@ -217,7 +202,6 @@ paths:
     patch:
       operationId: updateProduct
       tags: [products]
-      summary: Update a product
       parameters:
         - name: id
           in: path
@@ -241,7 +225,6 @@ paths:
     delete:
       operationId: deleteProduct
       tags: [products]
-      summary: Delete a product
       parameters:
         - name: id
           in: path
@@ -256,7 +239,6 @@ paths:
     get:
       operationId: listCategories
       tags: [categories]
-      summary: List all categories
       responses:
         "200":
           description: List of categories
@@ -270,7 +252,6 @@ paths:
     post:
       operationId: createCategory
       tags: [categories]
-      summary: Create a category
       requestBody:
         required: true
         content:
@@ -289,7 +270,6 @@ paths:
     patch:
       operationId: updateCategory
       tags: [categories]
-      summary: Update a category
       parameters:
         - name: id
           in: path
@@ -313,7 +293,6 @@ paths:
     delete:
       operationId: deleteCategory
       tags: [categories]
-      summary: Delete a category
       parameters:
         - name: id
           in: path
@@ -328,7 +307,6 @@ paths:
     get:
       operationId: listStockMovements
       tags: [stock]
-      summary: List stock movements
       parameters:
         - name: productId
           in: query
@@ -359,7 +337,6 @@ paths:
     post:
       operationId: createStockMovement
       tags: [stock]
-      summary: Create stock movement (in or out)
       requestBody:
         required: true
         content:
@@ -378,7 +355,11 @@ paths:
     get:
       operationId: listAlerts
       tags: [alerts]
-      summary: List stock alerts (low stock and out of stock)
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
       responses:
         "200":
           description: Alerts
@@ -389,11 +370,29 @@ paths:
                 items:
                   $ref: "#/components/schemas/StockAlert"
 
+  /alerts/expiry:
+    get:
+      operationId: listExpiryAlerts
+      tags: [alerts]
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Expiry alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExpiryAlert"
+
   /orders:
     get:
       operationId: listOrders
       tags: [orders]
-      summary: List orders
       parameters:
         - name: status
           in: query
@@ -420,7 +419,6 @@ paths:
     post:
       operationId: createOrder
       tags: [orders]
-      summary: Create an order
       requestBody:
         required: true
         content:
@@ -439,7 +437,6 @@ paths:
     get:
       operationId: getOrder
       tags: [orders]
-      summary: Get order by ID
       parameters:
         - name: id
           in: path
@@ -457,7 +454,6 @@ paths:
     patch:
       operationId: updateOrder
       tags: [orders]
-      summary: Update order status
       parameters:
         - name: id
           in: path
@@ -482,7 +478,6 @@ paths:
     get:
       operationId: listCustomers
       tags: [customers]
-      summary: List customers
       parameters:
         - name: search
           in: query
@@ -509,7 +504,6 @@ paths:
     post:
       operationId: createCustomer
       tags: [customers]
-      summary: Create a customer
       requestBody:
         required: true
         content:
@@ -528,7 +522,6 @@ paths:
     patch:
       operationId: updateCustomer
       tags: [customers]
-      summary: Update a customer
       parameters:
         - name: id
           in: path
@@ -552,7 +545,6 @@ paths:
     delete:
       operationId: deleteCustomer
       tags: [customers]
-      summary: Delete a customer
       parameters:
         - name: id
           in: path
@@ -570,8 +562,7 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
     LoginInput:
       type: object
@@ -614,6 +605,10 @@ components:
           type: integer
         inventoryValue:
           type: number
+        totalCostValue:
+          type: number
+        expiryWarningCount:
+          type: integer
 
     CategoryDistribution:
       type: object
@@ -650,7 +645,7 @@ components:
 
     Product:
       type: object
-      required: [id, name, categoryId, categoryName, quantity, unit, price, status, barcode, createdAt, updatedAt]
+      required: [id, name, categoryId, categoryName, quantity, unit, price, status, createdAt, updatedAt]
       properties:
         id:
           type: integer
@@ -666,6 +661,10 @@ components:
           type: string
         price:
           type: number
+        costPrice:
+          type: ["number", "null"]
+        margin:
+          type: ["number", "null"]
         lowStockThreshold:
           type: integer
         status:
@@ -675,6 +674,8 @@ components:
         description:
           type: ["string", "null"]
         brand:
+          type: ["string", "null"]
+        expiryDate:
           type: ["string", "null"]
         createdAt:
           type: string
@@ -710,6 +711,8 @@ components:
           type: string
         price:
           type: number
+        costPrice:
+          type: number
         lowStockThreshold:
           type: integer
         barcode:
@@ -717,6 +720,8 @@ components:
         description:
           type: string
         brand:
+          type: string
+        expiryDate:
           type: string
 
     ProductUpdate:
@@ -732,6 +737,8 @@ components:
           type: string
         price:
           type: number
+        costPrice:
+          type: number
         lowStockThreshold:
           type: integer
         barcode:
@@ -739,6 +746,8 @@ components:
         description:
           type: string
         brand:
+          type: string
+        expiryDate:
           type: string
 
     Category:
@@ -773,7 +782,7 @@ components:
 
     StockMovement:
       type: object
-      required: [id, productId, productName, type, quantity, reason, createdAt]
+      required: [id, productId, productName, type, quantity, createdAt]
       properties:
         id:
           type: integer
@@ -823,6 +832,25 @@ components:
           type: string
         updatedAt:
           type: string
+
+    ExpiryAlert:
+      type: object
+      required: [id, productId, productName, categoryName, quantity, expiryDate, daysUntilExpiry]
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        categoryName:
+          type: string
+        quantity:
+          type: integer
+        expiryDate:
+          type: string
+        daysUntilExpiry:
+          type: integer
 
     Order:
       type: object

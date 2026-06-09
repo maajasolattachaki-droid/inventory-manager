@@ -16,9 +16,6 @@ export const HealthCheckResponse = zod.object({
 })
 
 
-/**
- * @summary Admin login
- */
 export const LoginBody = zod.object({
   "username": zod.string(),
   "password": zod.string()
@@ -33,9 +30,6 @@ export const LoginResponse = zod.object({
 })
 
 
-/**
- * @summary Get current user
- */
 export const GetMeResponse = zod.object({
   "id": zod.number(),
   "username": zod.string(),
@@ -43,21 +37,17 @@ export const GetMeResponse = zod.object({
 })
 
 
-/**
- * @summary Get dashboard statistics
- */
 export const GetDashboardStatsResponse = zod.object({
   "totalProducts": zod.number(),
   "inStock": zod.number(),
   "lowStock": zod.number(),
   "outOfStock": zod.number(),
-  "inventoryValue": zod.number()
+  "inventoryValue": zod.number(),
+  "totalCostValue": zod.number().optional(),
+  "expiryWarningCount": zod.number().optional()
 })
 
 
-/**
- * @summary Get stock distribution by category
- */
 export const GetCategoryDistributionResponseItem = zod.object({
   "category": zod.string(),
   "count": zod.number(),
@@ -66,9 +56,6 @@ export const GetCategoryDistributionResponseItem = zod.object({
 export const GetCategoryDistributionResponse = zod.array(GetCategoryDistributionResponseItem)
 
 
-/**
- * @summary Get monthly restocking trend
- */
 export const GetMonthlyTrendResponseItem = zod.object({
   "month": zod.string(),
   "restocked": zod.number(),
@@ -77,9 +64,6 @@ export const GetMonthlyTrendResponseItem = zod.object({
 export const GetMonthlyTrendResponse = zod.array(GetMonthlyTrendResponseItem)
 
 
-/**
- * @summary Get top categories by stock value
- */
 export const GetTopCategoriesResponseItem = zod.object({
   "category": zod.string(),
   "value": zod.number(),
@@ -88,15 +72,13 @@ export const GetTopCategoriesResponseItem = zod.object({
 export const GetTopCategoriesResponse = zod.array(GetTopCategoriesResponseItem)
 
 
-/**
- * @summary List all products
- */
 export const ListProductsQueryParams = zod.object({
   "category": zod.coerce.string().optional(),
   "status": zod.coerce.string().optional(),
   "search": zod.coerce.string().optional(),
   "page": zod.coerce.number().optional(),
-  "limit": zod.coerce.number().optional()
+  "limit": zod.coerce.number().optional(),
+  "expiryWarning": zod.coerce.boolean().optional()
 })
 
 export const ListProductsResponse = zod.object({
@@ -108,11 +90,14 @@ export const ListProductsResponse = zod.object({
   "quantity": zod.number(),
   "unit": zod.string(),
   "price": zod.number(),
+  "costPrice": zod.number().nullish(),
+  "margin": zod.number().nullish(),
   "lowStockThreshold": zod.number().optional(),
   "status": zod.string(),
-  "barcode": zod.string().nullable(),
+  "barcode": zod.string().nullish(),
   "description": zod.string().nullish(),
   "brand": zod.string().nullish(),
+  "expiryDate": zod.string().nullish(),
   "createdAt": zod.string(),
   "updatedAt": zod.string()
 })),
@@ -122,25 +107,21 @@ export const ListProductsResponse = zod.object({
 })
 
 
-/**
- * @summary Create a product
- */
 export const CreateProductBody = zod.object({
   "name": zod.string(),
   "categoryId": zod.number(),
   "quantity": zod.number(),
   "unit": zod.string(),
   "price": zod.number(),
+  "costPrice": zod.number().optional(),
   "lowStockThreshold": zod.number().optional(),
   "barcode": zod.string().optional(),
   "description": zod.string().optional(),
-  "brand": zod.string().optional()
+  "brand": zod.string().optional(),
+  "expiryDate": zod.string().optional()
 })
 
 
-/**
- * @summary Get a product by ID
- */
 export const GetProductParams = zod.object({
   "id": zod.coerce.number()
 })
@@ -153,19 +134,19 @@ export const GetProductResponse = zod.object({
   "quantity": zod.number(),
   "unit": zod.string(),
   "price": zod.number(),
+  "costPrice": zod.number().nullish(),
+  "margin": zod.number().nullish(),
   "lowStockThreshold": zod.number().optional(),
   "status": zod.string(),
-  "barcode": zod.string().nullable(),
+  "barcode": zod.string().nullish(),
   "description": zod.string().nullish(),
   "brand": zod.string().nullish(),
+  "expiryDate": zod.string().nullish(),
   "createdAt": zod.string(),
   "updatedAt": zod.string()
 })
 
 
-/**
- * @summary Update a product
- */
 export const UpdateProductParams = zod.object({
   "id": zod.coerce.number()
 })
@@ -176,10 +157,12 @@ export const UpdateProductBody = zod.object({
   "quantity": zod.number().optional(),
   "unit": zod.string().optional(),
   "price": zod.number().optional(),
+  "costPrice": zod.number().optional(),
   "lowStockThreshold": zod.number().optional(),
   "barcode": zod.string().optional(),
   "description": zod.string().optional(),
-  "brand": zod.string().optional()
+  "brand": zod.string().optional(),
+  "expiryDate": zod.string().optional()
 })
 
 export const UpdateProductResponse = zod.object({
@@ -190,27 +173,24 @@ export const UpdateProductResponse = zod.object({
   "quantity": zod.number(),
   "unit": zod.string(),
   "price": zod.number(),
+  "costPrice": zod.number().nullish(),
+  "margin": zod.number().nullish(),
   "lowStockThreshold": zod.number().optional(),
   "status": zod.string(),
-  "barcode": zod.string().nullable(),
+  "barcode": zod.string().nullish(),
   "description": zod.string().nullish(),
   "brand": zod.string().nullish(),
+  "expiryDate": zod.string().nullish(),
   "createdAt": zod.string(),
   "updatedAt": zod.string()
 })
 
 
-/**
- * @summary Delete a product
- */
 export const DeleteProductParams = zod.object({
   "id": zod.coerce.number()
 })
 
 
-/**
- * @summary List all categories
- */
 export const ListCategoriesResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -220,18 +200,12 @@ export const ListCategoriesResponseItem = zod.object({
 export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
 
 
-/**
- * @summary Create a category
- */
 export const CreateCategoryBody = zod.object({
   "name": zod.string(),
   "description": zod.string().optional()
 })
 
 
-/**
- * @summary Update a category
- */
 export const UpdateCategoryParams = zod.object({
   "id": zod.coerce.number()
 })
@@ -249,17 +223,11 @@ export const UpdateCategoryResponse = zod.object({
 })
 
 
-/**
- * @summary Delete a category
- */
 export const DeleteCategoryParams = zod.object({
   "id": zod.coerce.number()
 })
 
 
-/**
- * @summary List stock movements
- */
 export const ListStockMovementsQueryParams = zod.object({
   "productId": zod.coerce.number().optional(),
   "type": zod.coerce.string().optional(),
@@ -273,15 +241,12 @@ export const ListStockMovementsResponseItem = zod.object({
   "productName": zod.string(),
   "type": zod.string(),
   "quantity": zod.number(),
-  "reason": zod.string().nullable(),
+  "reason": zod.string().nullish(),
   "createdAt": zod.string()
 })
 export const ListStockMovementsResponse = zod.array(ListStockMovementsResponseItem)
 
 
-/**
- * @summary Create stock movement (in or out)
- */
 export const CreateStockMovementBody = zod.object({
   "productId": zod.number(),
   "type": zod.string(),
@@ -290,9 +255,10 @@ export const CreateStockMovementBody = zod.object({
 })
 
 
-/**
- * @summary List stock alerts (low stock and out of stock)
- */
+export const ListAlertsQueryParams = zod.object({
+  "limit": zod.coerce.number().optional()
+})
+
 export const ListAlertsResponseItem = zod.object({
   "id": zod.number(),
   "productId": zod.number(),
@@ -306,9 +272,22 @@ export const ListAlertsResponseItem = zod.object({
 export const ListAlertsResponse = zod.array(ListAlertsResponseItem)
 
 
-/**
- * @summary List orders
- */
+export const ListExpiryAlertsQueryParams = zod.object({
+  "days": zod.coerce.number().optional()
+})
+
+export const ListExpiryAlertsResponseItem = zod.object({
+  "id": zod.number(),
+  "productId": zod.number(),
+  "productName": zod.string(),
+  "categoryName": zod.string(),
+  "quantity": zod.number(),
+  "expiryDate": zod.string(),
+  "daysUntilExpiry": zod.number()
+})
+export const ListExpiryAlertsResponse = zod.array(ListExpiryAlertsResponseItem)
+
+
 export const ListOrdersQueryParams = zod.object({
   "status": zod.coerce.string().optional(),
   "page": zod.coerce.number().optional(),
@@ -333,9 +312,6 @@ export const ListOrdersResponseItem = zod.object({
 export const ListOrdersResponse = zod.array(ListOrdersResponseItem)
 
 
-/**
- * @summary Create an order
- */
 export const CreateOrderBody = zod.object({
   "customerId": zod.number(),
   "items": zod.array(zod.object({
@@ -345,9 +321,6 @@ export const CreateOrderBody = zod.object({
 })
 
 
-/**
- * @summary Get order by ID
- */
 export const GetOrderParams = zod.object({
   "id": zod.coerce.number()
 })
@@ -369,9 +342,6 @@ export const GetOrderResponse = zod.object({
 })
 
 
-/**
- * @summary Update order status
- */
 export const UpdateOrderParams = zod.object({
   "id": zod.coerce.number()
 })
@@ -397,9 +367,6 @@ export const UpdateOrderResponse = zod.object({
 })
 
 
-/**
- * @summary List customers
- */
 export const ListCustomersQueryParams = zod.object({
   "search": zod.coerce.string().optional(),
   "page": zod.coerce.number().optional(),
@@ -418,9 +385,6 @@ export const ListCustomersResponseItem = zod.object({
 export const ListCustomersResponse = zod.array(ListCustomersResponseItem)
 
 
-/**
- * @summary Create a customer
- */
 export const CreateCustomerBody = zod.object({
   "name": zod.string(),
   "phone": zod.string(),
@@ -429,9 +393,6 @@ export const CreateCustomerBody = zod.object({
 })
 
 
-/**
- * @summary Update a customer
- */
 export const UpdateCustomerParams = zod.object({
   "id": zod.coerce.number()
 })
@@ -454,9 +415,6 @@ export const UpdateCustomerResponse = zod.object({
 })
 
 
-/**
- * @summary Delete a customer
- */
 export const DeleteCustomerParams = zod.object({
   "id": zod.coerce.number()
 })

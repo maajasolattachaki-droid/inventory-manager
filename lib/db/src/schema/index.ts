@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, numeric, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, numeric, timestamp, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -24,10 +24,12 @@ export const productsTable = pgTable("products", {
   quantity: integer("quantity").notNull().default(0),
   unit: text("unit").notNull().default("pcs"),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  costPrice: numeric("cost_price", { precision: 10, scale: 2 }),
   lowStockThreshold: integer("low_stock_threshold").notNull().default(10),
   barcode: text("barcode"),
   description: text("description"),
   brand: text("brand"),
+  expiryDate: date("expiry_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -53,7 +55,7 @@ export const customersTable = pgTable("customers", {
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
   customerId: integer("customer_id").notNull().references(() => customersTable.id),
-  status: text("status").notNull().default("pending"), // pending | processing | completed | cancelled
+  status: text("status").notNull().default("pending"),
   totalAmount: numeric("total_amount", { precision: 12, scale: 2 }).notNull().default("0"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -66,7 +68,6 @@ export const orderItemsTable = pgTable("order_items", {
   unitPrice: numeric("unit_price", { precision: 10, scale: 2 }).notNull(),
 });
 
-// Insert schemas
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, createdAt: true });
 export const insertCategorySchema = createInsertSchema(categoriesTable).omit({ id: true, createdAt: true });
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true, updatedAt: true });

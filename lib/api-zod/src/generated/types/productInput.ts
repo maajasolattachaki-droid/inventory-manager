@@ -12,8 +12,10 @@ export interface ProductInput {
   quantity: number;
   unit: string;
   price: number;
+  costPrice?: number;
   lowStockThreshold?: number;
   barcode?: string;
   description?: string;
   brand?: string;
+  expiryDate?: string;
 }

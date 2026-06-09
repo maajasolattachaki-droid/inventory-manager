@@ -1,33 +1,43 @@
 import { Router } from "express";
 import { db, productsTable, categoriesTable, stockMovementsTable } from "@workspace/db";
-import { eq, sql, and, gte } from "drizzle-orm";
+import { eq, sql, and, isNotNull } from "drizzle-orm";
 
 const router = Router();
 
 router.get("/dashboard/stats", async (req, res) => {
   try {
     const products = await db.select().from(productsTable);
+    const today = new Date().toISOString().split("T")[0];
+    const warnDate = new Date();
+    warnDate.setDate(warnDate.getDate() + 30);
+    const warnCutoff = warnDate.toISOString().split("T")[0];
 
     let totalProducts = products.length;
-    let inStock = 0;
-    let lowStock = 0;
-    let outOfStock = 0;
-    let inventoryValue = 0;
+    let inStock = 0, lowStock = 0, outOfStock = 0;
+    let inventoryValue = 0, totalCostValue = 0, expiryWarningCount = 0;
 
     for (const p of products) {
       const price = parseFloat(p.price as string);
+      const costPrice = p.costPrice ? parseFloat(p.costPrice as string) : 0;
       inventoryValue += price * p.quantity;
+      totalCostValue += costPrice * p.quantity;
 
-      if (p.quantity === 0) {
-        outOfStock++;
-      } else if (p.quantity <= p.lowStockThreshold) {
-        lowStock++;
-      } else {
-        inStock++;
-      }
+      if (p.quantity === 0) outOfStock++;
+      else if (p.quantity <= p.lowStockThreshold) lowStock++;
+      else inStock++;
+
+      if (p.expiryDate && p.expiryDate <= warnCutoff) expiryWarningCount++;
     }
 
-    return res.json({ totalProducts, inStock, lowStock, outOfStock, inventoryValue: Math.round(inventoryValue * 100) / 100 });
+    return res.json({
+      totalProducts,
+      inStock,
+      lowStock,
+      outOfStock,
+      inventoryValue: Math.round(inventoryValue * 100) / 100,
+      totalCostValue: Math.round(totalCostValue * 100) / 100,
+      expiryWarningCount,
+    });
   } catch (err) {
     req.log.error(err);
     return res.status(500).json({ error: "Internal server error" });
@@ -67,21 +77,24 @@ router.get("/dashboard/monthly-trend", async (req, res) => {
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
-      const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
 
       const movementsIn = await db
         .select({ qty: sql<number>`COALESCE(SUM(${stockMovementsTable.quantity}), 0)` })
         .from(stockMovementsTable)
-        .where(
-          and(
-            eq(stockMovementsTable.type, "in"),
-            gte(stockMovementsTable.createdAt, monthStart),
-          )
-        );
+        .where(and(
+          eq(stockMovementsTable.type, "in"),
+          sql`${stockMovementsTable.createdAt} >= ${monthStart.toISOString()}`
+        ));
+
+      const movementsOut = await db
+        .select({ qty: sql<number>`COALESCE(SUM(${stockMovementsTable.quantity}), 0)` })
+        .from(stockMovementsTable)
+        .where(and(
+          eq(stockMovementsTable.type, "out"),
+          sql`${stockMovementsTable.createdAt} >= ${monthStart.toISOString()}`
+        ));
 
       const restocked = parseInt((movementsIn[0]?.qty ?? 0).toString());
-
-      // Count low-stock products at that time (approximate)
       const products = await db.select().from(productsTable);
       const lowStockCount = products.filter(p => p.quantity > 0 && p.quantity <= p.lowStockThreshold).length;
 
@@ -89,6 +102,7 @@ router.get("/dashboard/monthly-trend", async (req, res) => {
         month: months[d.getMonth()],
         restocked,
         lowStock: lowStockCount,
+        stockOut: parseInt((movementsOut[0]?.qty ?? 0).toString()),
       });
     }
 

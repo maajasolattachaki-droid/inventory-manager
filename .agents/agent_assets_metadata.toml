@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "enDDyYIHWQn1p9je4n_Eb"
+uri = "file://mahadev-kirana-inventory.tar.gz"
+type = "unspecified"
+title = "Mahadev Kirana — Full Project Archive"

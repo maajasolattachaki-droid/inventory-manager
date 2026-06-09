@@ -30,6 +30,8 @@ export interface DashboardStats {
   lowStock: number;
   outOfStock: number;
   inventoryValue: number;
+  totalCostValue?: number;
+  expiryWarningCount?: number;
 }
 
 export interface CategoryDistribution {
@@ -58,14 +60,20 @@ export interface Product {
   quantity: number;
   unit: string;
   price: number;
+  /** @nullable */
+  costPrice?: number | null;
+  /** @nullable */
+  margin?: number | null;
   lowStockThreshold?: number;
   status: string;
   /** @nullable */
-  barcode: string | null;
+  barcode?: string | null;
   /** @nullable */
   description?: string | null;
   /** @nullable */
   brand?: string | null;
+  /** @nullable */
+  expiryDate?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -83,10 +91,12 @@ export interface ProductInput {
   quantity: number;
   unit: string;
   price: number;
+  costPrice?: number;
   lowStockThreshold?: number;
   barcode?: string;
   description?: string;
   brand?: string;
+  expiryDate?: string;
 }
 
 export interface ProductUpdate {
@@ -95,10 +105,12 @@ export interface ProductUpdate {
   quantity?: number;
   unit?: string;
   price?: number;
+  costPrice?: number;
   lowStockThreshold?: number;
   barcode?: string;
   description?: string;
   brand?: string;
+  expiryDate?: string;
 }
 
 export interface Category {
@@ -126,7 +138,7 @@ export interface StockMovement {
   type: string;
   quantity: number;
   /** @nullable */
-  reason: string | null;
+  reason?: string | null;
   createdAt: string;
 }
 
@@ -146,6 +158,16 @@ export interface StockAlert {
   lowStockThreshold: number;
   status: string;
   updatedAt: string;
+}
+
+export interface ExpiryAlert {
+  id: number;
+  productId: number;
+  productName: string;
+  categoryName: string;
+  quantity: number;
+  expiryDate: string;
+  daysUntilExpiry: number;
 }
 
 export interface OrderItem {
@@ -212,6 +234,7 @@ status?: string;
 search?: string;
 page?: number;
 limit?: number;
+expiryWarning?: boolean;
 };
 
 export type ListStockMovementsParams = {
@@ -219,6 +242,14 @@ productId?: number;
 type?: string;
 page?: number;
 limit?: number;
+};
+
+export type ListAlertsParams = {
+limit?: number;
+};
+
+export type ListExpiryAlertsParams = {
+days?: number;
 };
 
 export type ListOrdersParams = {

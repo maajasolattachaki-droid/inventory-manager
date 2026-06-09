@@ -17,6 +17,7 @@ import Orders from "@/pages/admin/Orders";
 import Customers from "@/pages/admin/Customers";
 import Alerts from "@/pages/admin/Alerts";
 import Reports from "@/pages/admin/Reports";
+import QuickSales from "@/pages/admin/QuickSales";
 import NotFound from "@/pages/not-found";
 
 function AdminRoutes() {
@@ -24,12 +25,13 @@ function AdminRoutes() {
     <ProtectedRoute>
       <Switch>
         <Route path="/admin/dashboard" component={Dashboard} />
+        <Route path="/admin/quick-sales" component={QuickSales} />
         <Route path="/admin/products" component={Products} />
         <Route path="/admin/products/:id" component={ProductDetail} />
         <Route path="/admin/categories" component={Categories} />
-        <Route path="/admin/stock" component={StockMovements} />
         <Route path="/admin/stock/in" component={StockForm} />
         <Route path="/admin/stock/out" component={StockForm} />
+        <Route path="/admin/stock" component={StockMovements} />
         <Route path="/admin/orders" component={Orders} />
         <Route path="/admin/customers" component={Customers} />
         <Route path="/admin/alerts" component={Alerts} />

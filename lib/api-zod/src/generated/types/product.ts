@@ -14,14 +14,20 @@ export interface Product {
   quantity: number;
   unit: string;
   price: number;
+  /** @nullable */
+  costPrice?: number | null;
+  /** @nullable */
+  margin?: number | null;
   lowStockThreshold?: number;
   status: string;
   /** @nullable */
-  barcode: string | null;
+  barcode?: string | null;
   /** @nullable */
   description?: string | null;
   /** @nullable */
   brand?: string | null;
+  /** @nullable */
+  expiryDate?: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -13,6 +13,6 @@ export interface StockMovement {
   type: string;
   quantity: number;
   /** @nullable */
-  reason: string | null;
+  reason?: string | null;
   createdAt: string;
 }

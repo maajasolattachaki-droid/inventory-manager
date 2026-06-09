@@ -3,35 +3,20 @@ import { useGetMe, useLogout } from "@workspace/api-client-react";
 import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard,
-  Package,
-  Tags,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  ClipboardList,
-  ShoppingCart,
-  Users,
-  AlertTriangle,
-  BarChart3,
-  LogOut,
-  Store,
-  Menu,
-  ChevronDown,
-  ChevronRight,
+  LayoutDashboard, Package, Tags, ArrowDownToLine, ArrowUpFromLine,
+  ClipboardList, ShoppingCart, Users, AlertTriangle, BarChart3,
+  LogOut, Store, Menu, ChevronDown, ChevronRight, Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-type NavItem = {
-  href?: string;
-  label: string;
-  icon: React.ElementType;
-  children?: { href: string; label: string; icon: React.ElementType }[];
-};
+type NavChild = { href: string; label: string; icon: React.ElementType };
+type NavItem = { href?: string; label: string; icon: React.ElementType; children?: NavChild[] };
 
 const navItems: NavItem[] = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/quick-sales", label: "Quick Sales", icon: Zap },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: Tags },
   {
@@ -49,24 +34,14 @@ const navItems: NavItem[] = [
   { href: "/admin/reports", label: "Reports", icon: BarChart3 },
 ];
 
-function NavLinks({
-  onNavigate,
-  location,
-}: {
-  onNavigate?: () => void;
-  location: string;
-}) {
-  const [inventoryOpen, setInventoryOpen] = useState(
-    location.startsWith("/admin/stock")
-  );
+function NavLinks({ onNavigate, location }: { onNavigate?: () => void; location: string }) {
+  const [inventoryOpen, setInventoryOpen] = useState(location.startsWith("/admin/stock"));
 
   return (
     <>
       {navItems.map((item) => {
         if (item.children) {
-          const isActive = item.children.some(
-            (c) => location === c.href || location.startsWith(c.href + "/")
-          );
+          const isActive = item.children.some(c => location === c.href || location.startsWith(c.href + "/"));
           return (
             <div key={item.label}>
               <button
@@ -75,19 +50,17 @@ function NavLinks({
                     ? "bg-sidebar-primary/20 text-sidebar-primary-foreground font-medium"
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 }`}
-                onClick={() => setInventoryOpen((o) => !o)}
+                onClick={() => setInventoryOpen(o => !o)}
               >
                 <span className="flex items-center gap-3">
                   <item.icon className="h-5 w-5 shrink-0" />
                   <span>{item.label}</span>
                 </span>
-                {inventoryOpen
-                  ? <ChevronDown className="h-4 w-4 shrink-0" />
-                  : <ChevronRight className="h-4 w-4 shrink-0" />}
+                {inventoryOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
               </button>
               {inventoryOpen && (
-                <div className="ml-5 mt-1 flex flex-col gap-1 border-l border-sidebar-border pl-3">
-                  {item.children.map((child) => (
+                <div className="ml-5 mt-1 flex flex-col gap-0.5 border-l border-sidebar-border pl-3">
+                  {item.children.map(child => (
                     <Link key={child.href} href={child.href}>
                       <div
                         className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
@@ -107,7 +80,6 @@ function NavLinks({
             </div>
           );
         }
-
         return (
           <Link key={item.href} href={item.href!}>
             <div
@@ -120,6 +92,9 @@ function NavLinks({
             >
               <item.icon className="h-5 w-5 shrink-0" />
               <span>{item.label}</span>
+              {item.href === "/admin/quick-sales" && (
+                <span className="ml-auto text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-bold">POS</span>
+              )}
             </div>
           </Link>
         );
@@ -136,22 +111,17 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     logout.mutate(undefined, {
-      onSuccess: () => {
-        queryClient.clear();
-        setLocation("/login");
-      },
+      onSuccess: () => { queryClient.clear(); setLocation("/login"); },
     });
   };
 
-  const currentLabel =
-    navItems
-      .flatMap((item) => (item.children ? item.children : [item]))
-      .find((item) => location === item.href || location.startsWith((item.href || "") + "/"))
-      ?.label || "Admin Panel";
+  const allNavItems = navItems.flatMap(item => item.children ? item.children : [item]);
+  const currentLabel = allNavItems.find(item =>
+    location === item.href || location.startsWith((item.href || "") + "/")
+  )?.label || "Admin Panel";
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-sidebar border-r border-sidebar-border shrink-0 fixed inset-y-0 z-10">
         <div className="h-16 flex items-center px-6 border-b border-sidebar-border shrink-0">
           <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-lg text-sidebar-foreground">
@@ -168,15 +138,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             onClick={handleLogout}
           >
-            <LogOut className="mr-2 h-5 w-5" />
-            Logout
+            <LogOut className="mr-2 h-5 w-5" /> Logout
           </Button>
         </div>
       </aside>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col md:ml-64 min-w-0">
-        {/* Top Navbar */}
         <header className="h-16 bg-white border-b border-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-3">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -212,7 +179,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>

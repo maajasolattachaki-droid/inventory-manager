@@ -12,4 +12,6 @@ export interface DashboardStats {
   lowStock: number;
   outOfStock: number;
   inventoryValue: number;
+  totalCostValue?: number;
+  expiryWarningCount?: number;
 }
