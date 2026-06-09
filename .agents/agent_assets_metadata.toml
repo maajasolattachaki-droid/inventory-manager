@@ -6,3 +6,9 @@ id = "enDDyYIHWQn1p9je4n_Eb"
 uri = "file://mahadev-kirana-inventory.tar.gz"
 type = "unspecified"
 title = "Mahadev Kirana — Full Project Archive"
+
+[[outputs]]
+id = "P_uZRqZbvxAkNoheAIucn"
+uri = "file://mahadev-kirana-inventory.zip"
+type = "unspecified"
+title = "Mahadev Kirana — Project ZIP"
