@@ -1,0 +1,101 @@
+Create a complete Inventory Management Website using HTML5, CSS3, JavaScript, PHP 8+, MySQL, Bootstrap 5, and AJAX.
+
+IMPORTANT:
+A reference design image is attached with this prompt. Analyze the attached image and use it as the primary UI/UX design reference for the entire website. Match the layout, color scheme, typography, spacing, dashboard structure, cards, tables, navigation, forms, icons, responsiveness, and overall professional appearance as closely as possible while maintaining clean, modern, production-ready code. If any element is unclear, intelligently recreate it using modern admin dashboard standards. The final website should look visually similar to the attached design while remaining fully responsive and functional.
+
+Requirements:
+
+* Generate a complete ready-to-run XAMPP project.
+* Create a root folder named "inventory_management".
+* The project must run locally after extracting directly into XAMPP htdocs.
+* Include database.sql and README.txt with setup instructions.
+
+Folder Structure:
+
+* inventory_management/
+* admin/
+* assets/
+* css/
+* js/
+* images/
+* includes/
+* uploads/
+* database/
+
+Design:
+
+* Professional modern design based on the attached image.
+* Fully responsive for mobile, tablet, and desktop.
+* Clean dashboard with sidebar, navbar, cards, charts, tables, and forms.
+* Fast loading and optimized UI.
+
+Authentication:
+
+* Login/Logout.
+* Session management.
+* Password hashing.
+* Role-based access (Admin, Staff).
+
+Inventory Management:
+
+* Dashboard
+* Product CRUD
+* Categories CRUD
+* Brands CRUD
+* Suppliers CRUD
+* Customers CRUD
+* Stock In
+* Stock Out
+* Purchase Management
+* Sales Management
+* Inventory Tracking
+* Low Stock Alerts
+* Barcode field support
+* Search, Filter, Pagination
+* Reports & Analytics
+* Export CSV/PDF
+* Activity Logs
+
+Admin Panel:
+
+* Full inventory control.
+* User Management.
+* Role & Permission Management.
+* Site Settings.
+* Database Backup.
+* Dashboard Analytics.
+
+Database:
+
+* MySQL normalized database.
+* Proper relationships and foreign keys.
+* Sample data included.
+* database.sql ready for import in phpMyAdmin.
+
+Coding Rules:
+
+* Separate HTML, CSS, JS, PHP files.
+* Reusable components.
+* Clean and scalable architecture.
+* Use Bootstrap 5.
+* Use AJAX where beneficial.
+* Secure PHP with prepared statements.
+* Responsive forms and tables.
+* Comment only important sections.
+* No placeholder pages or dummy functionality.
+
+Output:
+
+1. Complete folder structure.
+2. All source code files.
+3. database.sql.
+4. README.txt.
+5. Default admin credentials.
+6. Installation instructions.
+
+Final Result:
+After extracting the project folder into XAMPP htdocs and importing database.sql into phpMyAdmin, the website should run directly from:
+
+http://localhost/inventory_management
+
+Generate production-ready code with complete functionality, responsive design, professional UI matching the attached image, and a fully functional admin inventory management system.
